@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // `npx shadcn@latest add avatar`
 import { LayoutGrid, LogOut, Settings, UserCircle, Users, PlusCircle, Trophy } from "lucide-react";
+import { useEffect } from "react";
 
 interface HeaderNavProps {
   user: User | null;
@@ -27,6 +28,24 @@ export function HeaderNav({ user }: HeaderNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
+
+  // Enregistrement du service worker PWA
+  useEffect(() => {
+    if (
+      typeof window !== "undefined" &&
+      "serviceWorker" in navigator &&
+      process.env.NODE_ENV === "production"
+    ) {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((reg) => {
+          console.log("Service worker enregistré:", reg);
+        })
+        .catch((err) => {
+          console.warn("Erreur lors de l'enregistrement du service worker:", err);
+        });
+    }
+  }, []);
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
