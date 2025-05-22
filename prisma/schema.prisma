@@ -1,0 +1,75 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enum pour le statut de validation d'une case de bingo
+enum BingoCellStatus {
+  PENDING    // En attente, état initial
+  VALIDATED  // Validée par l'organisateur (vert)
+  REJECTED   // Rejetée par l'organisateur (rouge)
+}
+
+model Profile {
+  id        String   @id @db.Uuid
+  username  String   @unique
+  avatarUrl String?  @map("avatar_url")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  createdEvents     Event[]             @relation("EventCreator")
+  eventParticipations EventParticipant[]  @relation("UserParticipations")
+
+  @@map("profiles")
+}
+
+model Event {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  eventDate   DateTime? @map("event_date")
+  creatorId   String   @db.Uuid @map("creator_id")
+  isPublic    Boolean  @default(true) @map("is_public")
+  accessCode  String?  @map("access_code")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  creator      Profile            @relation("EventCreator", fields: [creatorId], references: [id])
+  participants EventParticipant[] @relation("EventParticipants")
+
+  @@map("events")
+}
+
+model EventParticipant {
+  id        String   @id @default(uuid()) @db.Uuid
+  eventId   String   @db.Uuid @map("event_id")
+  userId    String   @db.Uuid @map("user_id")
+  joinedAt  DateTime @default(now()) @map("joined_at")
+
+  event     Event     @relation("EventParticipants", fields: [eventId], references: [id], onDelete: Cascade)
+  user      Profile   @relation("UserParticipations", fields: [userId], references: [id], onDelete: Cascade)
+  bingoCard BingoCard?
+
+  @@unique([eventId, userId], name: "EventParticipant_event_id_user_id_key")
+  @@map("event_participants")
+}
+
+model BingoCard {
+  id                   String   @id @default(uuid()) @db.Uuid
+  eventParticipantId   String   @unique @db.Uuid @map("event_participant_id")
+  cardData             Json     @map("card_data") // Sera [{ id: number, text: string, status: BingoCellStatus }, ...]
+  isValidated          Boolean  @default(false) @map("is_validated") // Pour la grille entière, si besoin
+  score                Int?     @default(0)
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  eventParticipant EventParticipant @relation(fields: [eventParticipantId], references: [id], onDelete: Cascade)
+
+  @@map("bingo_cards")
+}
