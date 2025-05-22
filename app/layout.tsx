@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { HeaderNav } from "@/components/navigation/header-nav";
 import { BottomNav } from "@/components/navigation/bottom-nav";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import Head from "next/head";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -31,6 +32,13 @@ export default async function RootLayout({
 
   return (
     <html lang="fr" suppressHydrationWarning className="h-full"> {/* Ajout de h-full ici */}
+      <Head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#6d5dfc" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <link rel="apple-touch-icon" href="/192.png" />
+      </Head>
       <body
         className={cn(
           "min-h-full bg-background font-sans antialiased flex flex-col", // min-h-full au lieu de min-h-screen
