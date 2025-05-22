@@ -86,6 +86,38 @@ export async function createEventAction(formData: FormData) {
     });
     console.log("createEventAction: Transaction Prisma terminée avec succès. Événement créé:", newEvent.id);
 
+    // Si l'événement est public, envoyer une notification à tous les utilisateurs
+    if (newEvent.isPublic) {
+      try {
+        // Récupérer tous les utilisateurs qui ont activé les notifications
+        const usersWithNotifications = await prisma.profile.findMany({
+          where: {
+            pushSubscriptions: {
+              some: {} // Au moins une subscription
+            }
+          },
+          select: {
+            id: true
+          }
+        });
+
+        if (usersWithNotifications.length > 0) {
+          await fetch('/api/notifications/send', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: 'Nouvel événement public',
+              body: `Un nouvel événement "${newEvent.name}" a été créé`,
+              url: `/events/${newEvent.id}`,
+              userIds: usersWithNotifications.map(u => u.id)
+            })
+          });
+        }
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi des notifications:', error);
+      }
+    }
+
     revalidatePath("/events");
     revalidatePath(`/events/${newEvent.id}`);
 
@@ -93,7 +125,7 @@ export async function createEventAction(formData: FormData) {
   } catch (e: any) {
     console.error("createEventAction: Erreur de base de données lors de la création de l'événement et du participant:", e);
     if (e.code === 'P2002') {
-        return { error: "Erreur lors de la création de l'événement : une contrainte unique a été violée.", data: null };
+      return { error: "Erreur lors de la création de l'événement : une contrainte unique a été violée.", data: null };
     }
     return { error: "Erreur de base de données lors de la création de l'événement.", data: null };
   }

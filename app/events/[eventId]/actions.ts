@@ -98,6 +98,29 @@ export async function updateBingoCellStatusAction(
       },
     });
 
+    // Envoyer une notification à l'organisateur de l'événement
+    const event = await prisma.event.findUnique({
+      where: { id: eventId },
+      select: { creatorId: true }
+    });
+
+    if (event) {
+      try {
+        await fetch('/api/notifications/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: 'Mise à jour de grille',
+            body: `Une case a été mise à jour dans une grille de l'événement`,
+            url: `/events/${eventId}`,
+            userIds: [event.creatorId]
+          })
+        });
+      } catch (error) {
+        console.error('Erreur lors de l\'envoi de la notification:', error);
+      }
+    }
+
     revalidatePath(`/events/${eventId}`);
     revalidatePath(`/events/${eventId}/leaderboard`); // Revalider aussi la page de classement
 

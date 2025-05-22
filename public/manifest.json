@@ -4,7 +4,7 @@
   "description": "Jouez au bingo entre amis avec QuoicouBingo !",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#20242d",
+  "background_color": "#232837",
   "theme_color": "#6d5dfc",
   "orientation": "portrait",
   "icons": [

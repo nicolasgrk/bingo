@@ -17,8 +17,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"; // `npx shadcn@latest add avatar`
-import { LayoutGrid, LogOut, Settings, UserCircle, Users, PlusCircle, Trophy } from "lucide-react";
-import { useEffect } from "react";
+import { LayoutGrid, LogOut, Settings, UserCircle, Users, PlusCircle, Trophy, Bell } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface HeaderNavProps {
   user: User | null;
@@ -28,6 +28,43 @@ export function HeaderNav({ user }: HeaderNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const supabase = createSupabaseBrowserClient();
+  const [notificationPermission, setNotificationPermission] = useState<NotificationPermission>('default');
+
+  // Vérifier et demander la permission pour les notifications
+  const requestNotificationPermission = async () => {
+    if (!("Notification" in window)) {
+      console.log("Ce navigateur ne supporte pas les notifications");
+      return;
+    }
+
+    try {
+      const permission = await Notification.requestPermission();
+      setNotificationPermission(permission);
+
+      if (permission === "granted") {
+        // Enregistrer le service worker et s'abonner aux notifications
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY // À configurer
+        });
+
+        // Envoyer la subscription au serveur
+        await fetch('/api/notifications/subscribe', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            subscription,
+            userId: user?.id
+          }),
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la demande de permission:", error);
+    }
+  };
 
   // Enregistrement du service worker PWA
   useEffect(() => {
@@ -40,6 +77,10 @@ export function HeaderNav({ user }: HeaderNavProps) {
         .register("/sw.js")
         .then((reg) => {
           console.log("Service worker enregistré:", reg);
+          // Vérifier l'état actuel des permissions
+          if ("Notification" in window) {
+            setNotificationPermission(Notification.permission);
+          }
         })
         .catch((err) => {
           console.warn("Erreur lors de l'enregistrement du service worker:", err);
@@ -89,11 +130,22 @@ export function HeaderNav({ user }: HeaderNavProps) {
         </nav>
         <div className="flex items-center space-x-2 md:space-x-4">
           {user && (
-            <Button asChild variant="outline" size="icon" className="neumorphic-inset rounded-full">
-              <Link href="/events/create" title="Créer un nouvel événement">
-                <PlusCircle className="h-6 w-6" />
-              </Link>
-            </Button>
+            <>
+              <Button
+                variant="outline"
+                size="icon"
+                className="neumorphic-inset rounded-full"
+                onClick={requestNotificationPermission}
+                title={notificationPermission === 'granted' ? 'Notifications activées' : 'Activer les notifications'}
+              >
+                <Bell className={`h-6 w-6 ${notificationPermission === 'granted' ? 'text-primary' : 'text-muted-foreground'}`} />
+              </Button>
+              <Button asChild variant="outline" size="icon" className="neumorphic-inset rounded-full">
+                <Link href="/events/create" title="Créer un nouvel événement">
+                  <PlusCircle className="h-6 w-6" />
+                </Link>
+              </Button>
+            </>
           )}
           <ThemeSwitcher />
           {user ? (

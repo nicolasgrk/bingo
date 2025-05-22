@@ -26,6 +26,7 @@ model Profile {
 
   createdEvents     Event[]             @relation("EventCreator")
   eventParticipations EventParticipant[]  @relation("UserParticipations")
+  pushSubscriptions PushSubscription[]  // Relation avec les abonnements push
 
   @@map("profiles")
 }
@@ -72,4 +73,16 @@ model BingoCard {
   eventParticipant EventParticipant @relation(fields: [eventParticipantId], references: [id], onDelete: Cascade)
 
   @@map("bingo_cards")
+}
+
+model PushSubscription {
+  id           String   @id @default(uuid()) @db.Uuid
+  userId       String   @db.Uuid @map("user_id")
+  subscription Json
+  createdAt    DateTime @default(now()) @map("created_at")
+  user         Profile   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("push_subscriptions")
+  @@unique([userId])
+  @@index([userId])
 }
