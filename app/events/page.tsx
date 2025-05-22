@@ -103,7 +103,7 @@ export default async function EventsPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {events.map((event) => (
-              <div key={event.id} className="neumorphic-card h-full flex flex-col">
+              <div key={event.id} className="h-full flex flex-col">
                 <EventCard event={event} currentUser={user} />
               </div>
             ))}

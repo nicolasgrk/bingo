@@ -103,7 +103,7 @@ export default async function EventDetailPage({ params }: EventDetailPageProps) 
   return (
     <div className="flex justify-center min-h-[80vh] py-12 px-2 sm:px-4">
       <div className="neumorphic-panel w-full max-w-3xl mx-auto">
-        <div className="neumorphic-card p-6 md:p-8">
+        <div className=" p-6 md:p-8">
           <div className="flex flex-col md:flex-row justify-between md:items-start mb-6">
             <div>
               <Button variant="outline" size="sm" asChild className="mb-4 md:mb-0 md:absolute md:top-6 md:left-6 rounded-full">

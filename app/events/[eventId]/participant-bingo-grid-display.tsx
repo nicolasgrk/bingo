@@ -96,26 +96,31 @@ export function ParticipantBingoGridDisplay({
 
   return (
     <>
-      <div className="flex justify-center">
-        <div className="neumorphic-card grid grid-cols-3 gap-3 p-3 sm:p-6 w-full max-w-xs sm:max-w-md aspect-square">
+      <div className="flex justify-center user-select-none">
+        <div className="neumorphic-card grid grid-cols-3 gap-3 p-3 sm:p-6 w-full max-w-xs sm:max-w-md aspect-square user-select-none">
           {cardData.map((cell) => (
             <button
+              tabIndex={0}
               key={cell.id}
               onClick={() => handleCellClick(cell)}
               disabled={!canEditStatus || isPending}
               className={cn(
-                "aspect-square rounded-xl flex flex-col items-center justify-center p-2 sm:p-4 text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors duration-150 text-sm sm:text-base",
+                "aspect-square rounded-xl flex flex-col items-center justify-center p-2 sm:p-4 text-center focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-colors duration-150 text-sm sm:text-base user-select-none",
                 statusColors[cell.status],
                 canEditStatus ? 'cursor-pointer' : 'cursor-not-allowed'
               )}
               aria-label={`Case ${cell.id}: ${cell.text}, statut: ${cell.status}`}
               onMouseDown={(e) => {
-                if (e.button !== 0) return; // seulement clic gauche
+                if (e.button !== 0) return;
+                e.preventDefault();
                 longPressTimeout.current = setTimeout(() => setModalCellText(cell.text || "Vide"), 500);
               }}
               onMouseUp={() => { if (longPressTimeout.current) clearTimeout(longPressTimeout.current); }}
               onMouseLeave={() => { if (longPressTimeout.current) clearTimeout(longPressTimeout.current); }}
-              onTouchStart={() => { longPressTimeout.current = setTimeout(() => setModalCellText(cell.text || "Vide"), 500); }}
+              onTouchStart={(e) => {
+                e.preventDefault();
+                longPressTimeout.current = setTimeout(() => setModalCellText(cell.text || "Vide"), 500);
+              }}
               onTouchEnd={() => { if (longPressTimeout.current) clearTimeout(longPressTimeout.current); }}
             >
               <span className="font-medium mb-1 w-full h-full break-words overflow-hidden text-ellipsis line-clamp-2 flex items-center justify-center text-center">
@@ -137,7 +142,7 @@ export function ParticipantBingoGridDisplay({
             className="neumorphic-card max-w-md w-[90vw] p-8 rounded-3xl text-center relative"
             onClick={e => e.stopPropagation()}
           >
-            <div className="text-2xl sm:text-3xl font-bold break-words mb-4">{modalCellText}</div>
+            <div className="text-2xl sm:text-3xl font-bold break-words mb-4 user-select-none">{modalCellText}</div>
             <button
               className="mt-2 px-6 py-2 neumorphic-btn rounded-full text-base"
               onClick={() => setModalCellText(null)}

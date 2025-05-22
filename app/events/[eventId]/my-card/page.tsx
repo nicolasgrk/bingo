@@ -112,7 +112,7 @@ export default async function MyBingoCardPage({ params }: MyBingoCardPageProps) 
         </Button>
         <h1 className="text-3xl md:text-4xl font-bold mb-2 text-center tracking-tight text-primary">Votre Grille Bingo</h1>
         <p className="text-center text-muted-foreground mb-8">Pour l'événement : <span className="font-semibold">{event.name}</span></p>
-        <div className="neumorphic-card p-6 md:p-8">
+        <div className=" p-6 md:p-8">
           <BingoCardForm
             eventId={eventId}
             eventParticipantId={participantRecord.id}

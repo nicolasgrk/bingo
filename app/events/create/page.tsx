@@ -16,7 +16,7 @@ export default async function CreateEventPage() {
     <div className="flex justify-center min-h-[80vh] py-12 px-2 sm:px-4">
       <div className="neumorphic-panel w-full max-w-2xl mx-auto">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-center tracking-tight text-primary">Créer un Nouvel Événement Bingo</h1>
-        <div className="neumorphic-card p-6 md:p-8">
+        <div className="p-6 md:p-8">
           {/* Le user.id sera passé au formulaire pour l'utiliser comme creator_id */}
           <CreateEventForm userId={user.id} />
         </div>
