@@ -2,7 +2,7 @@ const CACHE_NAME = 'quoicoubingo-v1';
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
-  '/512.png',
+  '/192.png',
   '/512.png',
   // Ajoute ici d'autres assets statiques si besoin
 ];
@@ -14,8 +14,8 @@ self.addEventListener('push', (event) => {
   const data = event.data.json();
   const options = {
     body: data.body,
-    icon: '/512.png',
-    badge: '/512.png',
+    icon: '/192.png',
+    badge: '/192.png',
     vibrate: [100, 50, 100],
     data: {
       url: data.url // URL pour rediriger quand on clique sur la notification
