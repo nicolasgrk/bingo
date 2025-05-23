@@ -37,7 +37,7 @@ export default async function RootLayout({
         <meta name="theme-color" content="#6d5dfc" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <link rel="apple-touch-icon" href="/192.png" />
+        <link rel="apple-touch-icon" href="/512.png" />
       </Head>
       <body
         className={cn(
